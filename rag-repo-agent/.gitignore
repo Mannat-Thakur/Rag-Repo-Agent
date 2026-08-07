@@ -1,0 +1,14 @@
+node_modules/
+dist/
+build/
+.env
+.env.local
+*.log
+.DS_Store
+
+# temp cloned repos during ingestion — never commit someone else's code
+backend/tmp/
+backend/cloned-repos/
+
+# qdrant local storage if run without docker volume
+qdrant_storage/
