@@ -8,20 +8,33 @@ const PROSE_EXTENSIONS = new Set(['.md', '.mdx', '.txt']);
 
 // A single paragraph/block can itself exceed the target size.
 // Cut it with a sliding window so no chunk balloons past the target.
+// A single paragraph/block can itself exceed the target size.
+// Cut it with a sliding window, preferring line breaks so chunks
+// start and end on whole lines instead of mid-statement.
 function splitOversized(text) {
   if (text.length <= TARGET_CHUNK_CHARS) return [text];
 
   const pieces = [];
   let start = 0;
   while (start < text.length) {
-    const end = Math.min(start + TARGET_CHUNK_CHARS, text.length);
+    let end = Math.min(start + TARGET_CHUNK_CHARS, text.length);
+
+    // prefer ending on a line break so chunks don't stop mid-line
+    if (end < text.length) {
+      const lastNewline = text.lastIndexOf('\n', end);
+      if (lastNewline > start + OVERLAP_CHARS * 2) end = lastNewline;
+    }
+
     pieces.push(text.slice(start, end));
     if (end === text.length) break;
+
     start = end - OVERLAP_CHARS;
+    // start the next chunk on a whole line when one begins inside the overlap
+    const nextNewline = text.indexOf('\n', start);
+    if (nextNewline !== -1 && nextNewline < end) start = nextNewline + 1;
   }
   return pieces;
 }
-
 // Prose: split on paragraphs, pack them up to the target size,
 // and carry the tail of each chunk into the next as overlap.
 function chunkProse(text) {
