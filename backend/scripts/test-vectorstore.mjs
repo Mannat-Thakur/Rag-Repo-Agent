@@ -1,3 +1,4 @@
+import fs from 'fs';
 import { cloneRepo, listRelevantFiles, cleanupClone } from '../src/services/github.service.js';
 import { chunkFile } from '../src/services/chunking.service.js';
 import { embedDocuments, embedQuery } from '../src/services/embedding.service.js';
@@ -39,5 +40,12 @@ for (const r of results) {
 
 const other = await searchChunks('some-other/repo', queryVector, 3);
 console.log('\nResults for a different repoId:', other.length);
+
+fs.writeFileSync(
+  'tmp/search-results.txt',
+  results
+    .map((r) => `--- ${r.relativePath}:${r.startLine}-${r.endLine} (score ${r.score.toFixed(4)}) ---\n${r.content}`)
+    .join('\n\n')
+);
 
 await cleanupClone(localPath);
