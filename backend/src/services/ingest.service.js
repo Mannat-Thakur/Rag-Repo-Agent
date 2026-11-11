@@ -2,7 +2,7 @@ import { cloneRepo, listRelevantFiles, cleanupClone } from './github.service.js'
 import { chunkFile } from './chunking.service.js';
 import { embedDocuments } from './embedding.service.js';
 import { ensureCollection, deleteRepoVectors, upsertChunks } from './vectorstore.service.js';
-
+export class IngestError extends Error {}
 const GITHUB_URL_PATTERN =
   /^https:\/\/github\.com\/([A-Za-z0-9_.-]+)\/([A-Za-z0-9_.-]+?)(?:\.git)?\/?$/;
 const MAX_FILES = 500;
